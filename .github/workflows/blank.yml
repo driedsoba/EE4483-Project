@@ -1,36 +1,85 @@
-# This is a basic workflow to help you get started with Actions
+# Example CI/CD Workflow for AI Project (Dogs and Cats Classification)
+# Purpose: Automates testing, linting, and basic model validation on every push/PR to ensure code quality and functionality.
 
-name: CI
+name: CI Pipeline
 
-# Controls when the workflow will run
+# Triggers: Run on pushes/PRs to main, and manually via Actions tab
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  # Job 1: Test and Validate Code
+  test:
+    runs-on: ubuntu-latest  # Free Linux runner for fast execution
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4  # Downloads your repo to the runner
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Matches your project's Python version
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Installs libraries
+
+      - name: Lint code # check style
+        run: |
+          pip install flake8  # Install linter
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics  # Basic checks for errors
+
+      - name: Run unit tests
+        run: |
+          pip install pytest  # If not in requirements.txt
+          pytest tests/  # Runs tests in tests/ folder (e.g., test model loading, predictions)
+
+      - name: Validate model (basic smoke test)
+        run: |
+          python -c "import your_model; print('Model loads successfully')"  # Replace with actual validation script
+
+  # Job 2: Deploy (runs after test passes)
+  deploy:
+    needs: test  # Only runs if test job succeeds
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Only on main branch (after PR merge)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build model artifacts
+        run: |
+          # Example: Save trained model or build app
+          python your_model.py  # Replace with your training script
+          # Or: python -m build  # If using a build tool
+
+      - name: Deploy to production
+        run: |
+          # Example: Upload to Hugging Face, AWS S3, or deploy web app
+          echo "Add deployment commands here (e.g., upload model to cloud service)"
+          # For AI models: Use Hugging Face CLI or cloud SDKs
+          # pip install huggingface_hub
+          # huggingface-cli upload your-model ./model-files
