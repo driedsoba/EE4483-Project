@@ -5,8 +5,8 @@ Each teammate can add a new model easily (plugin style) and train it without tou
 
 ---
 
-## 📂 Project Structure
-
+## Repo Layout
+```
 cats-vs-dogs/
 ├─ src/
 │ ├─ data.py # unified data loading + augmentation
@@ -27,7 +27,6 @@ cats-vs-dogs/
 ├─ README.md
 └─ requirements.txt
 
-Dataset folder (not committed, add to `.gitignore`):
 
 datasets/
 ├─ train/
@@ -37,6 +36,7 @@ datasets/
 │ ├─ cat/
 │ └─ dog/
 └─ test/ # 500 unlabeled images
+```
 
 
 ---
@@ -49,14 +49,14 @@ cd cats-vs-dogs
 pip install -r requirements.txt
 ```
 
-
+---
 🛠️ Adding Your Model
 Create a folder: src/models/<your_model_name>/
 
 Inside it, add model.py:
 
 python
-Copy code
+
 import torch.nn as nn
 NAME = "my_model"
 
@@ -67,20 +67,24 @@ def build(num_classes=2, pretrained=False, freeze="none"):
         nn.Flatten(), nn.Linear(32*112*112, num_classes)
     )
 Done! The registry will discover it automatically.
+---
 
+---
 🚀 Training
 Example: ResNet-18 transfer learning
 
-bash
+```bash
 Copy code
 python -m src.train --model resnet18 --pretrained \
     --epochs 12 --warmup_epochs 2 --data_root datasets --out_dir runs
 Custom Sequential CNN from scratch:
+```
 
-bash
+```bash
 Copy code
 python -m src.train --model my_sequential \
     --epochs 30 --warmup_epochs 0 --data_root datasets --out_dir runs
+```
 Key flags:
 
 --img_size (default 224)
@@ -96,10 +100,13 @@ plus = adds contrast/saturation jitter
 --train_per_class / --val_per_class : optional subsampling for faster experiments
 
 Checkpoints & logs go to runs/<model_name>/best.pt.
+---
 
+---
 📊 Producing Predictions
-bash
-Copy code
+```bash
 python -m src.infer --model resnet18 --ckpt runs/resnet18/best.pt \
     --data_root datasets --out runs/resnet18/submission.csv
 (Or add a simple infer.py — same transforms as val/test; outputs submission.csv with columns id,label.)
+```
+---
