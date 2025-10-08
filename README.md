@@ -55,7 +55,7 @@ Create a folder: src/models/<your_model_name>/
 
 Inside it, add model.py:
 
-python
+```bash
 
 import torch.nn as nn
 NAME = "my_model"
@@ -66,6 +66,7 @@ def build(num_classes=2, pretrained=False, freeze="none"):
         nn.Conv2d(3,32,3,padding=1), nn.ReLU(), nn.MaxPool2d(2),
         nn.Flatten(), nn.Linear(32*112*112, num_classes)
     )
+```
 Done! The registry will discover it automatically.
 ---
 
@@ -99,11 +100,11 @@ plus = adds contrast/saturation jitter
 
 --train_per_class / --val_per_class : optional subsampling for faster experiments
 
-Checkpoints & logs go to runs/<model_name>/best.pt.
----
 
----
+
 📊 Producing Predictions
+---
+Checkpoints & logs go to runs/<model_name>/best.pt.
 ```bash
 python -m src.infer --model resnet18 --ckpt runs/resnet18/best.pt \
     --data_root datasets --out runs/resnet18/submission.csv
