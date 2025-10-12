@@ -1,0 +1,9 @@
+tensorflow==2.17.0        # official build supports CUDA 12.x and cuDNN 9
+numpy>=1.26.4,<2.3.0
+matplotlib
+pytest
+flake8
+scikit-learn
+seaborn
+pandas
+jinja2
