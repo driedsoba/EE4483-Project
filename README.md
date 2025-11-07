@@ -1,4 +1,4 @@
-# IE — README
+# IE4483 Project — README
 
 This repository contains two key Jupyter notebooks used for **dataset exploration** and **model performance comparison**. Follow the instructions below to set up your environment and run the notebooks.
 
